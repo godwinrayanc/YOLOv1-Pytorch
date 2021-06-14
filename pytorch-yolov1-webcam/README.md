@@ -17,7 +17,7 @@ $ python3 webcam_plot.py
 ```
 
 ## Examples
-- <img src="https://github.com/godwinrayanc/pytorch-yolov1-webcam/predictions/dining.png" width="448" height="448">
+- <img src="https://github.com/godwinrayanc/YOLOv1-Pytorch/blob/a2042adc5ac0fcb4c0eebf6501bf91694451816f/pytorch-yolov1-webcam/predictions/dining.png" width="448" height="448">
 
 - <img src="https://github.com/mmalotin/pytorch-yolov3/blob/master/predictions/traffic_prediction.jpg?raw=true" width="512" height="512">
 
