@@ -13,19 +13,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 from collections import Counter
-
-def create_class_list(file):
-    with open(file, 'r') as f:
-        classes = f.read().split('\n')[:-1]
-    return classes
+import PIL
+from PIL import Image 
 
 
-CLASS_LIST = create_class_list('data/voc.names')
+CAPTURE_SIZE = (448,448)
+data_transforms = transforms.Compose(
+                    [
+                    transforms.Resize(CAPTURE_SIZE),
+                    transforms.ToTensor()
+                    ]
+                    )
 
-COLORS = [(0, 0, 0), (255, 255, 255), (255, 0, 0), (0, 255, 0), (0, 0, 255),
-          (255, 255, 0), (0, 255, 255), (255, 0, 255), (192, 192, 192),
-          (128, 128, 128), (128, 0, 0), (128, 128, 0), (0, 128, 0),
-          (128, 0, 128), (0, 128, 128), (0, 0, 128)]
+
+def preprocess(image):
+            
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2RGB)
+
+    image = PIL.Image.fromarray(image) #Webcam frames are numpy array format
+                                       #Therefore transform back to PIL image
+                                        
+    image = data_transforms(image)
+
+    image = image.float()
+             
+    image = image.cuda()
+    image = image.unsqueeze(0) #Resnet-50 model only 
+                               #accepts 4-D Vector Tensor, so squeeze another.
+    return image
+
 
 def non_max_suppression(bboxes, iou_threshold, threshold, box_format="corners"):
     """
@@ -151,7 +167,7 @@ def convert_cellboxes(predictions, S=7):
     return converted_preds
 
 def cellboxes_to_boxes(out, S=7):
-    print('Entering function')
+    
     converted_pred = convert_cellboxes(out).reshape(out.shape[0], S * S, -1)
     converted_pred[..., 0] = converted_pred[..., 0].long()
     all_bboxes = []
@@ -163,48 +179,8 @@ def cellboxes_to_boxes(out, S=7):
         for bbox_idx in range(S * S):
             bboxes.append([x.item() for x in converted_pred[ex_idx, bbox_idx, :]])
         all_bboxes.append(bboxes)
-
+    print('BOUNDING BOXES FOUND')
     return all_bboxes
-
-def plot_image(image, boxes, class_desc):
-    """Plots predicted bounding boxes on the image"""
-    """now image and boxes need to be list, first degree = number of image"""
-    """each item of image/bboxes list: returned from get_batch_bboxes"""
-
-    #assert image is not list, "image should be a list of length equal to batch_size"
-    im = np.array(image)
-    height, width = im.shape[0], im.shape[1]
-
-	    # Create figure and axes
-    fig, ax = plt.subplots(1)
-	    # Display the image
-    ax.imshow(im)
-
-
-
-	
-    # Create a Rectangle patch
-
-    for box in boxes:
-        #idx= (box[4])   
-        
-        class_id = int(box[0])
-        class_name = class_desc['class'][class_id]
-	        
-        upper_left_x = box[2]
-        upper_left_y = box[4]
-        rect = patches.Rectangle(
-        (upper_left_x * width, upper_left_y * height),
-        (box[1]-box[2]) * width,
-        (box[3] - box[4]) * height,
-        linewidth=1,
-        edgecolor="r",
-        facecolor="none")
-	        # Add the patch to the Axes
-        ax.add_patch(rect)
-	        #Add class-text to picture
-        ax.text(box[1]*width,box[3]*height, class_name, fontsize=10, color = 'red')
-        plt.show()
 
 LABEL_DICT = {
     0: "aeroplane",
@@ -242,7 +218,7 @@ def plot_image_pred(image, boxes_pred=None, boxes_true=None, figsize=None, nimgs
     fig = plt.figure(figsize=figsize) 
     for idx_img in range(nimgs):
         ax = fig.add_subplot(1,nimgs,idx_img+1)
-        print('image',image[idx_img])
+    
         im = np.array(image[idx_img].cpu()).transpose((1,2,0))
         height, width, _ = im.shape
         # Display the image
@@ -280,6 +256,7 @@ def plot_image_pred(image, boxes_pred=None, boxes_true=None, figsize=None, nimgs
 
 
         if boxes_pred is not None:
+            print('\nPLOTTING ON WEBCAM IMAGE')
             _boxes_pred = boxes_pred[idx_img]
             for box in _boxes_pred:
                 box_label = box[0:2] # class, confidence
@@ -305,7 +282,7 @@ def plot_image_pred(image, boxes_pred=None, boxes_true=None, figsize=None, nimgs
                     bbox=props,
                     color='white'
                 )
-        
+                print('Object and Confidence in image:',LABEL_DICT[box_label[0]]+f":{box_label[1]:.2f}")
         
     plt.show()
 
