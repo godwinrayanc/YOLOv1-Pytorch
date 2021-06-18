@@ -67,7 +67,7 @@ if __name__ == '__main__':
             x = preprocess(webstream)
             
             print('\nPREDICTION')
-            
+            print('\nCLOSE WINDOW TO CLICK ANOTHER PICTURE!')
             x = x.to(device)
             out = model(x)  
             
