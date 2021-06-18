@@ -1,10 +1,10 @@
-# You Only Look Once(YOLO V1) with PyTorch
+# You Only Look Once (YOLO V1) with PyTorch
 
-Object Identification involves identifying which objects are in an image and identify the class. Before YOLO(You Only Look Once), object detectors were quite slow as it involves extraction of regions in an image and further processed for classification. Slower Frames Per Second(FPS) are expensive for object detection in applications such as autonomous driving or fast moving robots. 
+Object Identification involves detecting objects in an image and identifying the classes. Before YOLO(You Only Look Once), object detectors were quite slow as it involves extraction of regions in an image preceding classification. Slower Frames Per Second(FPS) are expensive for object detection in applications such as autonomous driving or fast moving robots. 
 
-Regional Convolutional Neural Network (R-CNN) and its variants such as Fast R-CNN and Faster R-CNN improved accuracy but still managed to reach only 7 FPS [1].  To overcome such difficulties, YOLO was built by which can be trained, optimized end to end and achieve higher frames/second in real-time. The idea behind YOLO is to look only once in an image rather than looking at multiple regions.
+Regional Convolutional Neural Network (R-CNN) and its variants such as Fast R-CNN and Faster R-CNN improved accuracy but still managed to reach only 7 FPS [1].  To overcome such difficulties, You Only Look Once (YOLO) was proposed, which can be trained, optimized end to end and achieve higher frames/second in real-time. The idea behind YOLO is to look only once in an image rather than looking at multiple regions one by one.
 
-This blog relates to the reproduction of  YOLO V1 originally developed by Joseph Redmon et al. The convolutional neural network was built with C programming language when the research was published. We aim to implement YOLO V1 using PyTorch to train, test to achieve results as in Table 1 in [2]. Additionally, the results are visualized with webcam images as dataset. The primary objective is to understand the classic architecture of YOLO V1 to dive deeper into Object detection. Additionally, choosing this project will provide hands-on experience with PyTorch and OpenCV framework to execute Object-Detection Projects. 
+This blog relates to the reproduction of YOLO V1 originally developed by Joseph Redmon *et al*. The convolutional neural network was built with C programming language when the research was published. We aim to implement YOLO V1 using PyTorch to train, test to achieve results as in Table 1 in [2]. Additionally, the results are visualized with webcam images as dataset. The primary objective is to understand the classic architecture of YOLO V1 to dive deeper into Object detection. Additionally, choosing this project will provide hands-on experience with PyTorch and OpenCV framework to execute Object-Detection Projects. 
 
 ---
 
@@ -14,8 +14,10 @@ In this blog post, however, we put our eyes back on a classic architecture, Yolo
 
 ## 1 What is YOLO?
 
-YOLO means You Only Look Once, an unified object detection method that was proposed in [2]. Yolo uses a unique problem formation. Instead of proposing many possible regions of interest, YOLO splits an image into SxS grid (called cells) as in Fig. 1. At each cell the network output B bounding boxes. Although implicitly assuming there is only one class of object that is centered in each cell, it reduces the computation complexity greatly. Furthermore, to facilitate the training, bounding box coordinates are represented by their center point's coordinate $(x,y)$, and the width $w$ and height $h$, all of which are relative to the cell's width and height. This means if the image is resized (not scaled), these coordinates will remain the same. 
+You Only Look Once: an unified object detection method that was proposed in [2]. YOLO uses a unique problem formation. Instead of proposing many possible regions of interest, YOLO splits an image into SxS grid (called cells) as in Fig. 1. At each cell the network output B bounding boxes. Although implicitly assuming there is only one class of object that is centered in each cell, it reduces the computation complexity greatly. Furthermore, to facilitate the training, bounding box coordinates are represented by their center point's coordinate $(x,y)$, and the width $w$ and height $h$, all of which are relative to the cell's width and height. This means if the image is resized (streched and the resolution changed, not scaled but keeping the resolution the same), these coordinates will remain the same. 
+
 ![](https://i.imgur.com/VuUAwKP.png)
+
 *Figure 1. Yolo splits image to cells*
 
 ### 1.1 Loss Function
@@ -124,6 +126,12 @@ As shown above, the trained model is robust against exposure and saturation dist
 
 As for runtime speed, the complete inference process (starting from inputting the image to the network to finishing all the post processing like non-maximal suppression) runs at 120 fps on Nvidia V100, and at 11 fps on Nvidia GeForce 1660super. 
 
+
+| Model | mAP | FPS | GPU |
+| -------- | -------- | -------- | -------- |
+| YOLO[2]   | 63.4%   | 45    | Titan-X    |
+| YOLO+Resnet   |  47%    | 120     |  v100   |
+
 ---
 ### 3.2 WebCam performance
 Another interesting way to visualize results in real-time is by connecting the object detection model to a webcam. We implemented an custom object detector using OpenCV and PyTorch. The webcam stream is preprocessed in order to accomodate changes in resolution, RGB channels and data format(3D to 4D tensor) for the model. The weights obtained after training with VOC dataset are loaded to the ResNet-50 model.
@@ -138,6 +146,8 @@ Images are captured using the webcam and passed throught the model for predictin
 ---
 
 ## 4 Conclusion
+Through our reproduction, we have proved YOLO to be a solid object detection method, despite a small gap between achived test accuray and the accuray in paper. The main advantage of YOLO is fast and reasobably quick. This point is proved by running YOLO on our local machine to detect object in 
+
 Good stuff. What is clever? What is not cool? What can be improved? 
 
 
