@@ -2,9 +2,9 @@
 
 Object Identification involves detecting objects in an image and identifying the classes. Before YOLO(You Only Look Once), object detectors were quite slow as it involves extraction of regions in an image preceding classification. Slower Frames Per Second(FPS) are expensive for object detection in applications such as autonomous driving or fast moving robots. 
 
-Regional Convolutional Neural Network (R-CNN) and its variants such as Fast R-CNN and Faster R-CNN improved accuracy but still managed to reach only 7 FPS [1].  To overcome such difficulties, You Only Look Once (YOLO) was proposed, which can be trained, optimized end to end and achieve higher frames/second in real-time. The idea behind YOLO is to look only once in an image rather than looking at multiple regions one by one.
+Regional Convolutional Neural Network (R-CNN) and its variants such as Fast R-CNN and Faster R-CNN improved accuracy but still managed to reach only 7 FPS [1].  To overcome such difficulties, You Only Look Once (YOLO) was proposed, which can be trained end to end and achieve higher frames/second in real-time. The idea behind YOLO is to look only once in an image rather than looking at multiple regions one by one.
 
-This blog relates to the reproduction of YOLO V1 originally developed by Joseph Redmon *et al*. The convolutional neural network was built with C programming language when the research was published. We aim to implement YOLO V1 using PyTorch to train, test to achieve results as in Table 1 in [2]. Additionally, the results are visualized with webcam images as dataset. The primary objective is to understand the classic architecture of YOLO V1 to dive deeper into Object detection. Additionally, choosing this project will provide hands-on experience with PyTorch and OpenCV framework to execute Object-Detection Projects. 
+This blog relates to the reproduction of YOLO V1 originally developed by Joseph Redmon *et al*. The convolutional neural network was built with C programming language when the research was published. We aim to implement YOLO V1 using PyTorch to train, test to achieve results as in Table 1 in [2]. Additionally, the results are visualized with webcam images as dataset. The primary objective is to understand the classic architecture of YOLO V1 to dive deeper into Object detection. Additionally, choosing this project will provide hands-on experience with PyTorch and OpenCV framework to execute Object-Detection Projects. All codes for this reproduction is in this [Github Repository](https://github.com/godwinrayanc/YOLOv1-Pytorch).
 
 ---
 
@@ -72,7 +72,7 @@ Our intuition was that, considering vgg16 already has ~15 million parameters in 
 
 From the plot it can be observed that the model has clearly overfitted. 
 
-##### 2.1.2.1 Vgg16 as feature extractor/backbone(Trainable weights):
+##### 2.1.2.2 Vgg16 as feature extractor/backbone(Trainable weights):
 For the next iteration we set `requires_grad = False` in `model.parameters()`, thereby enabling backpropogation for all layers. The training vs validation plot for the same is shown below.
 
 ![](https://i.imgur.com/7VxDe8L.png)
@@ -80,7 +80,7 @@ For the next iteration we set `requires_grad = False` in `model.parameters()`, t
 
 From the figure it can be observed that this model has fared better than the one with frozen weights. Our assumption is that by enabling backpropogation to all layers, optimization took place in the whole feature space, allowing the network to to find a better optima. Also the images in Imagenet is of resolution 224x224. In our case, VOC dataset contains images of size 448x448. In restrospect, it makes much more sense to enable training for all layers. However to prevent catastrophic forgetting, we have kept the learning rate at a low value of 2e-5.
 
-##### 2.1.2.1 ResNet50 as feature extractor/backbone(Trainable weights):
+##### 2.1.2.3 ResNet50 as feature extractor/backbone(Trainable weights):
 
 Next we tried changing the feature extractor to a more modern architechture like the ResNet50. ResNet50 contains ~23 million parameters in the feature extractor.. Moreover, layers in a Resnet50 also use Batch Normalization which is not used in the paper.  The training vs validation plot for the same is shown below.
 
@@ -146,12 +146,20 @@ Images are captured using the webcam and passed throught the model for predictin
 ---
 
 ## 4 Conclusion
-Through our reproduction, we have proved YOLO to be a solid object detection method, despite a small gap between achived test accuray and the accuray in paper. The main advantage of YOLO is fast and reasobably quick. This point is proved by running YOLO on our local machine to detect object in 
+Through our reproduction, we have proved YOLO to be a solid object detection method, despite a small gap between achived test accuray and the accuray in paper. The main advantage of YOLO is fast and reasobably quick. This point is proved by running YOLO on our local machine to detect object in PASCAL images as well as web camera images. Even with our cheap graphics card, we still achieved reasonable detection results in a short time. 
 
-Good stuff. What is clever? What is not cool? What can be improved? 
+However, there still remain a few issues. The biggest one is the proposed learning schedule is completely not applicable. Despite the author proposed to use $10^{-2}$ for the majority of ephocs, we noticed unstable gradients with learning rates larger than $10^{-4}$. The second issue is the confusing description about data augmentation in the paper. The author did not specify what to do when objects are moved out of image when doing random translation. The third one lies in YOLO itself. YOLO's way of formulating object detection problem limits that it can only detect B objects for one cell at most. 
+
+With YOLO being an interesting and innovative method, we expect adaptions can be made on it to further reveal its potential. What's more, due to its straightforward architecture, some changes can be easily made, such as adding BatchNorm, and replacing with a better backend like ResNet. We also expect the ideas of YOLO can inspire people to propose even better algorithms (maybe they already did :). 
 
 
-The implementation for real-time detection is based on images taken through webcam. We aim to develop detection for visualizing in videos and live-streaming from webcam.
+Contribution:
+
+Chinmay Polya Ramesh - Training
+
+Nan Lin - Data Augmentation and Test Results
+
+Godwin Rayan Chandran - Webcam Results and Poster Presentation
 
 ## References
 1. Shaoqing Ren, Kaiming He, Ross Girshick, and Jian Sun. Faster r-cnn: Towards real-time object detectionwith region proposal networks.arXiv preprint arXiv:1506.01497, 2015.
