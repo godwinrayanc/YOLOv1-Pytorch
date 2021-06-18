@@ -1,10 +1,12 @@
 # You Only Look Once (YOLO V1) with PyTorch
 
+Authors: Chinmay Polya Ramesh, Godwin Ryan Chandaran, Nan Lin.
+
 Object Identification involves detecting objects in an image and identifying the classes. Before YOLO(You Only Look Once), object detectors were quite slow as it involves extraction of regions in an image preceding classification. Slower Frames Per Second(FPS) are expensive for object detection in applications such as autonomous driving or fast moving robots. 
 
 Regional Convolutional Neural Network (R-CNN) and its variants such as Fast R-CNN and Faster R-CNN improved accuracy but still managed to reach only 7 FPS [1].  To overcome such difficulties, You Only Look Once (YOLO) was proposed, which can be trained end to end and achieve higher frames/second in real-time. The idea behind YOLO is to look only once in an image rather than looking at multiple regions one by one.
 
-This blog relates to the reproduction of YOLO V1 originally developed by Joseph Redmon *et al*. The convolutional neural network was built with C programming language when the research was published. We aim to implement YOLO V1 using PyTorch to train, test to achieve results as in Table 1 in [2]. Additionally, the results are visualized with webcam images as dataset. The primary objective is to understand the classic architecture of YOLO V1 to dive deeper into Object detection. Additionally, choosing this project will provide hands-on experience with PyTorch and OpenCV framework to execute Object-Detection Projects. All codes for this reproduction is in this [Github Repository](https://github.com/godwinrayanc/YOLOv1-Pytorch).
+This blog relates to the reproduction of YOLO V1 originally developed by Joseph Redmon *et al*. The convolutional neural network was built with C programming language when the research was published. We aim to implement YOLO V1 using PyTorch to train, test to achieve results as in Table 1 in [2]. Additionally, the results are visualized with webcam images as dataset. The primary objective is to understand the classic architecture of YOLO V1 to dive deeper into Object detection. Additionally, choosing this project will provide hands-on experience with PyTorch and OpenCV framework to execute Object-Detection Projects. All codes for this reproduction is in this [Github Repository](https://github.com/godwinrayanc/YOLOv1-Pytorch). We reused code from [here](https://github.com/aladdinpersson/Machine-Learning-Collection/tree/master/ML/Pytorch/object_detection/YOLO) for supporting functions.
 
 ---
 
@@ -105,6 +107,7 @@ Although we followed most of the methods mentioned in the paper our implementati
 With regards to learning rate, the paper follows a learning rate scedule. When we tried implementing the same values for our network, the training loss showed Nan values indicating exploding gradients. Therefore, our  learning  rate  schedule  is  as  follows:  For  the  first two epochs we keep a low value of $2*10^{-5}$ to prevent divering due to unstable gradients.Then we increase it to $8*10^{-5}$ and continue training with for 10 epochs, then $4*10^{-5}$ for 5 epochs, and finally $2*10^{-4}$ for remaining epochs.
 
 Below we show a comparision for validation accuracy of ResNet50+YOLO model trained with and without learning rate scheduling. 
+
 ![](https://i.imgur.com/YWe6vlI.png)
 
 From the plot, we can observe that at epoch 30, the model with rate scheduling has already reached an accuracy of 47% mAP as opposed to 42% mAP without. We could not continue further due to time constraints.
@@ -112,6 +115,8 @@ From the plot, we can observe that at epoch 30, the model with rate scheduling h
 The above plot was obtained for a conservating rate sceduling. In the future we can try experimenting with higher initial learning rates, as given in the paper.
 
 
+
+---
 
 ## 3 Results
 ### 3.1 Test Results
@@ -146,11 +151,11 @@ Images are captured using the webcam and passed throught the model for predictin
 ---
 
 ## 4 Conclusion
-Through our reproduction, we have proved YOLO to be a solid object detection method, despite a small gap between achived test accuray and the accuray in paper. The main advantage of YOLO is fast and reasobably quick. This point is proved by running YOLO on our local machine to detect object in PASCAL images as well as web camera images. Even with our cheap graphics card, we still achieved reasonable detection results in a short time. 
+Through our reproduction, we have proved YOLO to be a solid object detection method, despite a gap between achived test accuray and the accuray in paper. The main advantage of YOLO is fast and reasobably quick. This point is proved by running YOLO on our local machine to detect object in PASCAL images as well as web camera images. Even on our cheap graphics cards, we still achieved reasonable detection results in a short time. 
 
-However, there still remain a few issues. The biggest one is the proposed learning schedule is completely not applicable. Despite the author proposed to use $10^{-2}$ for the majority of ephocs, we noticed unstable gradients with learning rates larger than $10^{-4}$. The second issue is the confusing description about data augmentation in the paper. The author did not specify what to do when objects are moved out of image when doing random translation. The third one lies in YOLO itself. YOLO's way of formulating object detection problem limits that it can only detect B objects for one cell at most. 
+However, there still remain a few issues. The biggest one is the proposed learning schedule is completely not applicable. Despite the author proposed to use $10^{-2}$ for the majority of ephocs, we noticed unstable gradients with learning rates larger than $10^{-3}$. The second issue is the confusing description about data augmentation in the paper. The author did not specify what to do when objects are moved out of image when doing random translation. The third one lies in YOLO itself. YOLO's way of formulating object detection problem limits that it can only detect B objects for one cell at most. 
 
-With YOLO being an interesting and innovative method, we expect adaptions can be made on it to further reveal its potential. What's more, due to its straightforward architecture, some changes can be easily made, such as adding BatchNorm, and replacing with a better backend like ResNet. We also expect the ideas of YOLO can inspire people to propose even better algorithms (maybe they already did :). 
+YOLO is an interesting and innovative method. we expect adaptions can be made on it to further reveal its potential. What's more, due to its straightforward architecture, some changes can be easily made, such as adding BatchNorm, and replacing with a better backend like ResNet. We also expect the ideas of YOLO can inspire people to propose even better algorithms (maybe they already did :). 
 
 
 Contribution:
